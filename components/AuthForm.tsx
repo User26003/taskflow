@@ -139,7 +139,10 @@ export default function AuthForm({ mode }: Props) {
         
         {isLogin ? (
   <p className="mt-3 text-center text-sm">
-    <Link href="/forgot-password" className="text-slate-500 hover:text-violet-600">
+    <Link
+      href="/forgot-password"
+      className="text-slate-500 transition hover:text-violet-600"
+    >
       Mot de passe oublié ?
     </Link>
   </p>

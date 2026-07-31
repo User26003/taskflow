@@ -7,20 +7,19 @@ import {
   DragOverlay,
   DragStartEvent,
   PointerSensor,
+  closestCorners,
   useSensor,
   useSensors,
-  closestCorners,
 } from "@dnd-kit/core";
 import type { Task, TaskStatus } from "@/lib/types";
 import KanbanColumn from "./KanbanColumn";
-import KanbanCard from "./KanbanCard";
 
 const COLUMNS: TaskStatus[] = ["todo", "in_progress", "done"];
 
 type Props = {
   tasks: Task[];
   onEdit: (task: Task) => void;
-  onMove: (taskId: string, newStatus: TaskStatus, orderedIds: string[]) => void;
+  onMove: (activeId: string, overId: string, targetStatus: TaskStatus) => void;
 };
 
 export default function KanbanBoard({ tasks, onEdit, onMove }: Props) {
@@ -38,12 +37,15 @@ export default function KanbanBoard({ tasks, onEdit, onMove }: Props) {
       in_progress: [],
       done: [],
     };
+
     for (const task of tasks) {
       map[task.status].push(task);
     }
+
     for (const status of COLUMNS) {
       map[status].sort((a, b) => a.position - b.position);
     }
+
     return map;
   }, [tasks]);
 
@@ -59,37 +61,22 @@ export default function KanbanBoard({ tasks, onEdit, onMove }: Props) {
 
   function handleDragEnd(event: DragEndEvent) {
     setActiveTask(null);
+
     const { active, over } = event;
     if (!over) return;
 
-    const activeId = active.id as string;
-    const overId = over.id as string;
+    const activeId = String(active.id);
+    const overId = String(over.id);
 
-    // Colonne cible : soit un status (droppable colonne), soit le status d'une carte
+    if (activeId === overId) return;
+
     const targetStatus = COLUMNS.includes(overId as TaskStatus)
       ? (overId as TaskStatus)
       : findStatusOfTask(overId);
 
     if (!targetStatus) return;
 
-    const currentColumn = grouped[targetStatus].filter(
-      (t) => t.id !== activeId
-    );
-
-    const overIndex = currentColumn.findIndex((t) => t.id === overId);
-    const insertIndex = overIndex >= 0 ? overIndex : currentColumn.length;
-
-    const newOrder = [...currentColumn];
-    newOrder.splice(insertIndex, 0, {
-      ...tasks.find((t) => t.id === activeId)!,
-      status: targetStatus,
-    });
-
-    onMove(
-      activeId,
-      targetStatus,
-      newOrder.map((t) => t.id)
-    );
+    onMove(activeId, overId, targetStatus);
   }
 
   return (
@@ -111,7 +98,18 @@ export default function KanbanBoard({ tasks, onEdit, onMove }: Props) {
       </div>
 
       <DragOverlay>
-        {activeTask ? <KanbanCard task={activeTask} onEdit={onEdit} /> : null}
+        {activeTask ? (
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-lg">
+            <h4 className="text-sm font-semibold text-slate-900">
+              {activeTask.title}
+            </h4>
+            {activeTask.description?.trim() ? (
+              <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">
+                {activeTask.description}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
       </DragOverlay>
     </DndContext>
   );
