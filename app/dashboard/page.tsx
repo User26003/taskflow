@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import TaskList from "@/components/TaskList";
-import type { Task } from "@/lib/types";
+import type { Task, ViewMode } from "@/lib/types";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -10,20 +10,17 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
-  const { data, error } = await supabase
-    .from("tasks")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const [{ data: tasksData, error }, { data: profile }] = await Promise.all([
+    supabase.from("tasks").select("*").order("created_at", { ascending: false }),
+    supabase.from("profiles").select("default_view").eq("id", user.id).single(),
+  ]);
 
-  if (error) {
-    throw new Error(error.message);
-  }
+  if (error) throw new Error(error.message);
 
-  const tasks = (data ?? []) as Task[];
+  const tasks = (tasksData ?? []) as Task[];
+  const initialView = (profile?.default_view as ViewMode) ?? "list";
 
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
@@ -34,12 +31,11 @@ export default async function DashboardPage() {
             Gère tes tâches sans friction
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-            Un espace clair pour créer, filtrer et suivre l’avancement de tes tâches
-            avec un design produit sobre et dense.
+            Crée, filtre, trie et organise tes tâches en liste ou en Kanban.
           </p>
         </div>
 
-        <TaskList initialTasks={tasks} userId={user.id} />
+        <TaskList initialTasks={tasks} userId={user.id} initialView={initialView} />
       </div>
     </main>
   );

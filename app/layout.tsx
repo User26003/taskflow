@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -10,10 +11,10 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "TaskFlow",
+    default: "TaskFlow — Gestion de tâches moderne",
     template: "%s | TaskFlow",
   },
-  description: "Application de gestion de tâches avec Supabase.",
+  description: "Application de gestion de tâches avec Supabase et Next.js.",
 };
 
 export default function RootLayout({
@@ -21,7 +22,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fr" className={inter.variable}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        {children}
+        <Toaster position="bottom-right" />
+      </body>
     </html>
   );
 }

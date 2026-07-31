@@ -136,6 +136,14 @@ export default function AuthForm({ mode }: Props) {
             ? "Se connecter"
             : "Créer le compte"}
         </button>
+        
+        {isLogin ? (
+  <p className="mt-3 text-center text-sm">
+    <Link href="/forgot-password" className="text-slate-500 hover:text-violet-600">
+      Mot de passe oublié ?
+    </Link>
+  </p>
+) : null}
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-500">

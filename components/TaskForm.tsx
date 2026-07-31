@@ -16,6 +16,8 @@ const defaultValues: TaskInput = {
   description: "",
   status: "todo",
   priority: "medium",
+  category: "",
+  due_date: "",
 };
 
 export default function TaskForm({
@@ -46,6 +48,8 @@ export default function TaskForm({
       description: values.description?.trim() || "",
       status: values.status,
       priority: values.priority,
+      category: values.category?.trim() || "",
+      due_date: values.due_date || "",
     });
 
     if (mode === "create") {
@@ -54,7 +58,10 @@ export default function TaskForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+    >
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold tracking-tight text-slate-900">
@@ -62,7 +69,7 @@ export default function TaskForm({
           </h2>
           <p className="mt-1 text-sm text-slate-500">
             {mode === "create"
-              ? "Ajoute une tâche avec un statut et un niveau de priorité."
+              ? "Ajoute une tâche avec statut, priorité et échéance."
               : "Mets à jour les informations de la tâche."}
           </p>
         </div>
@@ -87,12 +94,8 @@ export default function TaskForm({
           type="text"
           value={values.title}
           onChange={(e) =>
-            setValues((prev) => ({
-              ...prev,
-              title: e.target.value,
-            }))
+            setValues((prev) => ({ ...prev, title: e.target.value }))
           }
-          placeholder="Préparer la maquette du dashboard"
           className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
         />
       </div>
@@ -106,12 +109,8 @@ export default function TaskForm({
           rows={4}
           value={values.description ?? ""}
           onChange={(e) =>
-            setValues((prev) => ({
-              ...prev,
-              description: e.target.value,
-            }))
+            setValues((prev) => ({ ...prev, description: e.target.value }))
           }
-          placeholder="Détails utiles, prochaines étapes, notes..."
           className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
         />
       </div>
@@ -160,10 +159,41 @@ export default function TaskForm({
         </div>
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="category" className="mb-1.5 block text-sm font-medium text-slate-700">
+            Catégorie
+          </label>
+          <input
+            id="category"
+            type="text"
+            value={values.category ?? ""}
+            onChange={(e) =>
+              setValues((prev) => ({ ...prev, category: e.target.value }))
+            }
+            placeholder="Design, Admin, Produit..."
+            className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="due_date" className="mb-1.5 block text-sm font-medium text-slate-700">
+            Échéance
+          </label>
+          <input
+            id="due_date"
+            type="date"
+            value={values.due_date ?? ""}
+            onChange={(e) =>
+              setValues((prev) => ({ ...prev, due_date: e.target.value }))
+            }
+            className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+          />
+        </div>
+      </div>
+
       {error ? (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-          {error}
-        </p>
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
       ) : null}
 
       <button
